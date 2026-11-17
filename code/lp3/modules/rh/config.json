@@ -1,0 +1,38 @@
+{
+ "_note": "参数初始值与 mvp3（提交 fe9f8e2）完全相同；改动须 July 批准并补测试、跑回放。",
+ "rules": {
+  "min_tvl": 500000.0,
+  "min_days": 7,
+  "spike": 3.0
+ },
+ "major": [
+  "CBBTC",
+  "ETH",
+  "USDC",
+  "USDG",
+  "USDT",
+  "WBTC",
+  "WETH"
+ ],
+ "dynamic_fee_dex_prefixes": [
+  "aero-",
+  "aerodrome-",
+  "ramses-"
+ ],
+ "chain_id": {
+  "Base": 8453,
+  "Robinhood": 4663
+ },
+ "coverage": {
+  "name": "rh",
+  "chain": null,
+  "include": [],
+  "exclude": [],
+  "not_applicable": "只采主流交易对（股票池归 2.0、meme 另存），没有可比的协议总量",
+  "exempt": null,
+  "priced_side": false,
+  "tail_status": "not_collected",
+  "fee24x7_estimate": false
+ },
+ "legacy_coverage": null
+}

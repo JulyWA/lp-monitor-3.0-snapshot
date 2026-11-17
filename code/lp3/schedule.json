@@ -1,0 +1,5 @@
+{
+ "_note": "每个时段按顺序逐个启动模块，每个模块独立子进程、独立超时（秒）。超时参考 11-13..11-17 实测耗时：curve 约 320s、aero 约 840s、rh 约 150s、Solana 三家各 10–40s。aero 与 rh 共用 GeckoTerminal 限速，必须串行，顺序与 mvp3 相同。",
+ "stage1": [["curve", 900], ["aero", 1500], ["rh", 300]],
+ "stage2": [["orca", 300], ["raydium", 300], ["meteora", 300]]
+}

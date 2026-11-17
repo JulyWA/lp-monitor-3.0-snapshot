@@ -1,0 +1,70 @@
+{
+ "_note": "参数初始值与 mvp3（提交 fe9f8e2）完全相同；改动须 July 批准并补测试、跑回放。",
+ "rules": {
+  "min_tvl": 500000.0,
+  "min_days": 7,
+  "spike": 3.0,
+  "sol_stable": [
+   "CASH",
+   "DAI",
+   "FDUSD",
+   "JUPUSD",
+   "PYUSD",
+   "RLUSD",
+   "USD1",
+   "USDC",
+   "USDC.E",
+   "USDE",
+   "USDG",
+   "USDS",
+   "USDT",
+   "USX"
+  ],
+  "sol_major": [
+   "BSOL",
+   "CBBTC",
+   "ETH",
+   "INF",
+   "JITOSOL",
+   "JUPSOL",
+   "MSOL",
+   "SOL",
+   "WBTC",
+   "WETH",
+   "WSOL",
+   "XBTC",
+   "ZBTC"
+  ],
+  "unlisted_min_fee_tvl_7d": 0.0001
+ },
+ "coverage": {
+  "name": "raydium",
+  "chain": "Solana",
+  "include": [
+   "raydium-amm"
+  ],
+  "exclude": [
+   [
+    "raydium-amm",
+    "Solana-staking",
+    "质押",
+    "RAY 质押，不是 LP 池"
+   ],
+   [
+    "launchlab",
+    "Solana",
+    "Launchpad",
+    "发射平台"
+   ]
+  ],
+  "not_applicable": null,
+  "exempt": "结构性小池为主，$50 万门槛下约 30%；11-16 July 批准豁免 80% 线（照算照报）",
+  "priced_side": true,
+  "tail_status": "not_collected",
+  "fee24x7_estimate": false
+ },
+ "legacy_coverage": {
+  "slug": "raydium-amm",
+  "chain": "Solana"
+ }
+}

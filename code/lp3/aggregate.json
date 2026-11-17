@@ -1,0 +1,13 @@
+{
+ "_note": "整合层配置：只用于展示和判断到点时间，不影响任何模块的采集和规则。source 标注见任务书 §3.1。",
+ "stage_start": {"stage1": "08:20", "stage2": "10:20"},
+ "modules": [
+  {"name": "curve", "label": "Curve · Ethereum", "stage": "stage1", "tier": "🟡", "source": "Curve 官方 Prices API；TVL 用官方 getPools（curve.fi 前端同源）；LP 分成读公共节点"},
+  {"name": "aero", "label": "Aero / Aerodrome 旧版 · Base", "stage": "stage1", "tier": "🔴", "source": "GeckoTerminal（第三方聚合）"},
+  {"name": "rh", "label": "Robinhood 主流对", "stage": "stage1", "tier": "🔴", "source": "GeckoTerminal（第三方聚合）"},
+  {"name": "orca", "label": "Orca · Solana", "stage": "stage2", "tier": "🟢", "source": "Orca 官方 API"},
+  {"name": "raydium", "label": "Raydium · Solana", "stage": "stage2", "tier": "🟢", "source": "Raydium 官方 API"},
+  {"name": "meteora", "label": "Meteora DLMM + DAMM v2 · Solana", "stage": "stage2", "tier": "🟢", "source": "Meteora 官方数据 API"}
+ ],
+ "tier_legend": {"🟢": "官方公开 API", "🟡": "官方接口但与前端耦合，或公共节点", "🔴": "第三方聚合，非官方"}
+}

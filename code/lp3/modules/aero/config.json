@@ -1,0 +1,55 @@
+{
+ "_note": "参数初始值与 mvp3（提交 fe9f8e2）完全相同；改动须 July 批准并补测试、跑回放。",
+ "rules": {
+  "min_tvl": 500000.0,
+  "min_days": 7,
+  "spike": 3.0
+ },
+ "dex_ids": [
+  "aerodrome-slipstream",
+  "aerodrome-slipstream-2",
+  "aerodrome-slipstream-3",
+  "aerodrome-base",
+  "aero-slipstream-base",
+  "aero-volatile-base",
+  "aero-stable-base"
+ ],
+ "dormant_vol_tvl": 0.001,
+ "chain_id": {
+  "Base": 8453,
+  "Robinhood": 4663
+ },
+ "coverage": {
+  "name": "aero",
+  "chain": "Base",
+  "include": [
+   "aerodrome-slipstream",
+   "aerodrome-v1",
+   "aero-slipstream",
+   "aero-basic"
+  ],
+  "exclude": [
+   [
+    "aerodrome-ignition",
+    "Base",
+    "Launchpad",
+    "发射平台，非 DEX"
+   ],
+   [
+    "aero-slipstream",
+    "Ethereum",
+    "Dexs·他链",
+    "不在 Base 链"
+   ]
+  ],
+  "not_applicable": null,
+  "exempt": null,
+  "priced_side": false,
+  "tail_status": "partial",
+  "fee24x7_estimate": false
+ },
+ "legacy_coverage": {
+  "slug": "aerodrome",
+  "chain": "Base"
+ }
+}

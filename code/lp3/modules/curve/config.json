@@ -1,0 +1,57 @@
+{
+ "_note": "参数初始值与 mvp3（提交 fe9f8e2）完全相同；改动须 July 批准并补测试、跑回放。",
+ "rules": {
+  "min_tvl": 500000.0,
+  "min_days": 7,
+  "spike": 3.0
+ },
+ "eth_rpc": "https://ethereum-rpc.publicnode.com",
+ "stale_hours": 6,
+ "default_lp_share": 0.5,
+ "yb_prefixes": [
+  "yield basis",
+  "yb "
+ ],
+ "coverage": {
+  "name": "curve",
+  "chain": "Ethereum",
+  "include": [
+   "curve-dex"
+  ],
+  "exclude": [
+   [
+    "curve-dex",
+    "Ethereum-staking",
+    "质押",
+    "veCRV 质押，不是 LP 池"
+   ],
+   [
+    "curve-llamalend",
+    "Ethereum",
+    "Lending",
+    "借贷，非 DEX"
+   ],
+   [
+    "curve-llamalend-v2",
+    "Ethereum",
+    "Lending",
+    "借贷，非 DEX"
+   ],
+   [
+    "crvusd",
+    "Ethereum",
+    "CDP",
+    "稳定币 CDP，非 DEX"
+   ]
+  ],
+  "not_applicable": null,
+  "exempt": null,
+  "priced_side": false,
+  "tail_status": "full",
+  "fee24x7_estimate": false
+ },
+ "legacy_coverage": {
+  "slug": "curve-dex",
+  "chain": "Ethereum"
+ }
+}

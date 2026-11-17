@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.july.lp3m-shadow-stage2</string>
+  <key>ProcessType</key><string>Background</string>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>__REPO__/lp3/run_stage.sh</string><string>stage2</string></array>
+  <key>EnvironmentVariables</key>
+  <dict><key>LP3_OUT_ROOT</key><string>__REPO__/out/lp3-shadow</string><key>LP3_STATE_DIR</key><string>__HOME__/.local/state/automation-lp3m-shadow</string></dict>
+  <key>StartCalendarInterval</key><dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>35</integer></dict>
+  <key>StandardOutPath</key><string>__HOME__/.local/state/automation-lp3m-shadow/lp3m-shadow-stage2.launchd.log</string>
+  <key>StandardErrorPath</key><string>__HOME__/.local/state/automation-lp3m-shadow/lp3m-shadow-stage2.launchd.log</string>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>
