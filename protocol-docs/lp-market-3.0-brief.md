@@ -48,23 +48,13 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-  subgraph A["08:20 第一步（约 20 分钟）"]
-    direction LR
-    C["Curve<br/>Prices API + getPools"] --> Ae["Aerodrome<br/>GeckoTerminal"] --> R["Robinhood 主流对<br/>GeckoTerminal"]
-  end
-  subgraph B["10:20 第二步（约 1 分钟）"]
-    direction LR
-    O["Orca<br/>官方 API"] --> Ry["Raydium<br/>官方 API"] --> M["Meteora<br/>官方 API"]
-  end
-  A --> F["每家当日文件 out/mvp3/<br/>过门槛池 + 不过门槛原因 + 资产类别 + APY"]
-  B --> F
-  A --> X["meme 和假 TVL 存档<br/>（不进榜）"]
-  B --> X
-  B --> Q["第二步过滤分析"]
-  L["DefiLlama 子协议 TVL<br/>（只作采全比分母）"] -.-> F
-  F --> W{"失败？"}
-  W -- "是" --> G["写失败文件，退出码 1<br/>走通用告警"]
-  W -- "否" --> N["只落文件：不推群、不写表"]
+  A["08:20 第一步（约 20 分钟）<br/>Curve → Aerodrome → Robinhood 主流对"] --> F
+  B["10:20 第二步（约 1 分钟）<br/>Orca → Raydium → Meteora"] --> F
+  L["DefiLlama 子协议 TVL<br/>只作采全比分母"] -.-> F
+  F["每家写当日文件 out/mvp3/<br/>过门槛池 · 不过门槛原因 · 资产类别 · APY · 采全比"] --> X["meme 和假 TVL 单独存档<br/>不进榜"]
+  F --> W{"有取数失败？"}
+  W -->|"是"| G["写失败文件，退出码 1，走通用告警"]
+  W -->|"否"| N["只落文件：不推群、不写表"]
 ```
 
 1. 08:20 第一步启动：Curve、Aerodrome、Robinhood 依次取数，约 20 分钟。Aerodrome 和 Robinhood 共用 GeckoTerminal 限速，必须串行。
