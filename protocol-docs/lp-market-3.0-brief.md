@@ -4,6 +4,29 @@
 
 3.0 第一阶段只扩数据层：在 1.0（Uniswap 三链）和 2.0（Pancake · BSC、Uniswap RWA · Robinhood）之外，把 Curve、Aerodrome、Robinhood 主流交易对和 Solana 三家（Orca、Raydium、Meteora）接进来，只采集、只落本地文件，不发新卡片、不写多维表格。截至 11-18，两步采集每天自动运行，都已用上 11-16 的新采全比口径；扫描覆盖率按手续费算，第一步后 35.2%，第二步后 49.9%。阶段 2 于 11-17、阶段 1 于 11-18 有条件签收，条件都是 11-19 补自然 3 日采全比。内部阶段 3 已于 11-18 开始：标签和股票名单刷新、扫描覆盖率每天重算在研究机干跑，字段清单定为第二阶段基线。核实发现 Raydium 和 Robinhood 主流对的 APY 是名义口径，没扣协议份额（见第 4 节），修正已写好，随模块化 1.1.0 发布。另外，6 块采集正在拆成独立模块，见[《3.0 模块化改造任务书》](lp-market-3.0-modular-brief.md)，交付前不影响现有任务。1.0、2.0 不动。
 
+## 当前状态（11-18）
+
+```mermaid
+flowchart LR
+  S0["阶段 0<br/>数据源核实"]:::done --> S1["阶段 1<br/>Curve · Aerodrome · Robinhood"]:::cond --> S2["阶段 2<br/>Orca · Raydium · Meteora"]:::cond --> S3["阶段 3<br/>收尾"]:::doing --> P2["产品第二阶段<br/>卡片 · 表格 · 推送"]:::todo
+  classDef done fill:#d4edda,stroke:#2e7d32,color:#1b5e20
+  classDef cond fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+  classDef doing fill:#fff3cd,stroke:#b8860b,color:#7a5c00
+  classDef todo fill:#eeeeee,stroke:#9e9e9e,color:#616161
+```
+
+绿 = 完成；蓝 = 有条件签收；黄 = 进行中；灰 = 未开始。
+
+| 阶段 | 结果 | 还差什么 |
+| --- | --- | --- |
+| 0 数据源核实 | 11-12 完成，6 个源跨期比对通过 | — |
+| 1 第一步采集 | **11-18 有条件签收**：连续 6 天运行成功；Curve 重抽 5/5；动态费率补丁实跑 8/8 | 11-19 补自然 3 日采全比 |
+| 2 第二步采集 | **11-17 有条件签收**：连续 4 天运行成功；官方接口抽查 15/15；分类抽查 19/20 | 11-19 补自然 3 日采全比 |
+| 3 收尾 | **进行中**：标签和名单刷新、覆盖率每天重算在研究机干跑；字段清单定为基线 | 干跑满 3 天（至 11-21）后签收 |
+| 产品第二阶段 | 未开始 | 阶段 3 签收后写任务书 |
+
+**需要知道的一件事**：Raydium 和 Robinhood 主流对的 APY 目前是名义口径，没扣协议份额，最多高估数倍（第 4 节）。修正已写好，随模块化 1.1.0 单独审批。
+
 ## 1. 范围一览
 
 两步加 6 块市场。每块按 1.0 的口径采池级字段（池名、费率、TVL、24 小时成交、7 天成交、即时 APY、7 天 APY、部署天数），另加「资产类别」和「没过门槛的原因」两个字段，方便第二阶段跨协议合并。
@@ -22,6 +45,27 @@
 股票池和代币池在采集时就分组，各排各的；meme 池不上榜，单独存档。第二步在验收前不并入 08:20 的生产默认范围。
 
 **每天怎么跑**
+
+```mermaid
+flowchart TB
+  subgraph A["08:20 第一步（约 20 分钟）"]
+    direction LR
+    C["Curve<br/>Prices API + getPools"] --> Ae["Aerodrome<br/>GeckoTerminal"] --> R["Robinhood 主流对<br/>GeckoTerminal"]
+  end
+  subgraph B["10:20 第二步（约 1 分钟）"]
+    direction LR
+    O["Orca<br/>官方 API"] --> Ry["Raydium<br/>官方 API"] --> M["Meteora<br/>官方 API"]
+  end
+  A --> F["每家当日文件 out/mvp3/<br/>过门槛池 + 不过门槛原因 + 资产类别 + APY"]
+  B --> F
+  A --> X["meme 和假 TVL 存档<br/>（不进榜）"]
+  B --> X
+  B --> Q["第二步过滤分析"]
+  L["DefiLlama 子协议 TVL<br/>（只作采全比分母）"] -.-> F
+  F --> W{"失败？"}
+  W -- "是" --> G["写失败文件，退出码 1<br/>走通用告警"]
+  W -- "否" --> N["只落文件：不推群、不写表"]
+```
 
 1. 08:20 第一步启动：Curve、Aerodrome、Robinhood 依次取数，约 20 分钟。Aerodrome 和 Robinhood 共用 GeckoTerminal 限速，必须串行。
 2. 每家过门槛、分资产类别、算 APY；meme 和假 TVL 池写进单独的存档文件。
@@ -91,6 +135,21 @@
 | meme | Robinhood：非股票、非主流币一律存档；Curve 不需要；Aerodrome 不设 meme 规则（第二阶段再议） | 任一侧有 CoinGecko meme 标签就存档；未收录且 7 天手续费 ÷ TVL < 0.01% 也存档（Meteora 先用 24h 手续费 × 7 估算，11-19 起用实际 7 天） |
 | 待分类代币 | — | 标签缓存里没有或上次查询失败的代币，挡在榜外，标「代币分类待更新」 |
 | APY | 池级手续费 × LP 分成 × 365（或 7 天 × 52）÷ TVL；Curve 按链上 admin_fee 算 LP 分成；Yield Basis 池不进 APY 榜；Robinhood 上的 Aero、Ramses 动态费率池费率和 APY 留空，注「动态费率，未取」（11-17 批，提交 872cf6d，11-18 08:20 起生效）。**Robinhood 主流对的 Uniswap V3 池目前是名义口径**：没扣链上协议抽成（11-18 实测 5 池全部开启 1/4 或 1/6，APY 高估 20%–33%；2.0 已扣） | Orca、Meteora 扣协议份额为 LP 实收。**Raydium 目前是名义口径**：11-18 核实官方 volumeFee 和页面 feeApr 都是总手续费，LP 实际拿 Concentrated 84%、AMM v4 88%，CPMM 还要扣归建池人的创建者费（ZEC/MASK 只有 16.8%，名义 35.0% → 实收 5.9%） |
+
+**APY 口径：从总手续费到 LP 实收**
+
+```mermaid
+flowchart LR
+  T["池子的总手续费"] --> D{"扣掉不归 LP 的部分"}
+  D -->|"Curve：链上 admin_fee"| OK1["LP 实收 ✅"]
+  D -->|"Orca：协议费率"| OK2["LP 实收 ✅"]
+  D -->|"Meteora：协议手续费"| OK3["LP 实收 ✅"]
+  D -.->|"Raydium：没扣（名义）<br/>实际 LP 拿 84% / 88%，CPMM 更低"| N1["名义 ⚠️"]
+  D -.->|"Robinhood V3：没扣协议抽成（名义）<br/>实际 LP 拿 75% / 83%"| N2["名义 ⚠️"]
+  T -.->|"Aerodrome：拿不到池级手续费"| Z["不算 APY"]
+```
+
+实线 = 已是 LP 实收；虚线 = 名义或缺失。名义口径的修正已实现，开关默认关，随模块化 1.1.0 审批后打开。
 
 **采全比（采得全的判据，11-16 定）。** 分母是 DefiLlama 该协议在目标链上的 DEX 子协议 TVL：收益聚合、借贷、CDP、发射平台、质押和采不到的 DEX 不进分母，逐项列在输出里。分子是采到的全部池 TVL，扣掉假 TVL，再加上已采到的 $50 万以下长尾。3 日滚动均值 ≥ 80% 为达标，单日照报。低于 80% 只写文件和日志，不推飞书。
 
