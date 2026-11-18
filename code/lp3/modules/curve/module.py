@@ -48,7 +48,29 @@ def admin_fees(pools, eth_rpc, chunk=50):
     return out
 
 
-def frontend_tvl(now, stale_hours, fetch=None):
+def fee_rates(pools, eth_rpc, chunk=50):
+    """1.1.0：批量读 Curve 池的 fee()（1e10 = 100%）。返回 {pool: 百分比}；读不到或超过 100% 的不放进结果。默认关（read_fee_rate）。"""
+    out = {}
+    for i in range(0, len(pools), chunk):
+        part = pools[i:i + chunk]
+        body = json.dumps([{'jsonrpc': '2.0', 'id': k, 'method': 'eth_call', 'params': [{'to': p, 'data': '0xddca3f43'}, 'latest']} for k, p in enumerate(part)])
+        pr = subprocess.run(['curl', '-sS', '--max-time', '60', eth_rpc, '-H', 'content-type: application/json', '-d', body], capture_output=True, text=True)
+        try:
+            res = json.loads(pr.stdout)
+            http.record(eth_rpc, True)
+        except ValueError:
+            http.record(eth_rpc, False)
+            continue
+        for x in res if isinstance(res, list) else []:
+            v = x.get('result')
+            if v and v != '0x' and 'error' not in x:
+                n = int(v, 16)
+                if 0 < n <= 10**10:
+                    out[part[x['id']]] = n / 1e10 * 100
+    return out
+
+
+def frontend_tvl(now, stale_hours, fetch=None, urls=None):
     """getPools 的 usdTotal。返回 {池地址小写: (usdTotal, isBroken)}。同一池出现在多个 registry 时取较大 TVL，任一处 isBroken 就算 broken。"""
     d = (fetch or http.get)(FRONT_URL)
     pools = ((d or {}).get('data') or {}).get('poolData') if isinstance(d, dict) else None
@@ -63,6 +85,8 @@ def frontend_tvl(now, stale_hours, fetch=None):
         if not a:
             continue
         u, b = float(p.get('usdTotal') or 0), bool(p.get('isBroken'))
+        if urls is not None and ((p.get('poolUrls') or {}).get('swap') or []):
+            urls.setdefault(a, p['poolUrls']['swap'][0])  # 官方 curve.fi 池页（1.1.0，默认不写进输出）
         if a in out:
             u, b = max(u, out[a][0]), b or out[a][1]
         out[a] = (u, b)
@@ -96,9 +120,10 @@ def run(ctx, with_7d=True):
         raise http.SourceError('Curve Prices API 数据陈旧：cached_at 距今 %.1f 小时' % ((now - cached) / 3600))
     front_err = None
     try:
-        front = frontend_tvl(now, stale, fetch=lambda u: http.get(u, tries=3, timeout=120))
+        urls = {} if cfg.get('use_pool_urls') else None
+        front = frontend_tvl(now, stale, fetch=lambda u: http.get(u, tries=3, timeout=120), urls=urls)
     except http.SourceError as e:  # 前端接口失败不让任务失败：退回 Prices API 的 TVL，summary.meta 和 warn 里写明
-        front, front_err = None, str(e)[-160:]
+        front, front_err, urls = None, str(e)[-160:], None
     rows, excluded, dropped, tail, n_fallback = [], [], [], 0.0, 0
     for p in d['data']:
         tvl, src, why = pick_tvl(p, front)
@@ -135,6 +160,14 @@ def run(ctx, with_7d=True):
             r['yb'] = True
             r['apy_out'] = 'Yield Basis 杠杆池：11-11 July 定不进 APY 榜，只上 TVL 榜'
             r['notes'] += '；Yield Basis 杠杆池：池子的 LP 是 Yield Basis 合约，个人经 YB 进入，还要扣 YB 分成和借款成本，APY 不能和普通池直接比'
+    if cfg.get('read_fee_rate'):
+        fees = fee_rates([r['pool'] for r in rows], cfg['eth_rpc'])
+        for r in rows:
+            r['fee_pct'] = fees.get(r['pool'])
+    if cfg.get('use_pool_urls') and urls:
+        for r in rows:
+            if urls.get(r['pool']):
+                r['front_url'] = urls[r['pool']]
     if with_7d:
         for r in rows:
             u = VOLUME_URL % (r['pool'], now - 9 * 86400, now)

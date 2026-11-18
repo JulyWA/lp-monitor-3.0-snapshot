@@ -53,5 +53,8 @@
  "legacy_coverage": {
   "slug": "curve-dex",
   "chain": "Ethereum"
- }
+ },
+ "read_fee_rate": false,
+ "use_pool_urls": false,
+ "_note_1_1_0": "11-18 July 批（字段清单 §3）：开关默认关，M4（至 11-20）结束后经 July 同意再打开；打开后输出口径改变，需重跑对比"
 }

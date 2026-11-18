@@ -66,5 +66,7 @@
  "legacy_coverage": {
   "slug": "raydium-amm",
   "chain": "Solana"
- }
+ },
+ "lp_share_mode": "nominal",
+ "_note_1_1_0": "11-18 July 批（字段清单 §3）：开关默认关，M4（至 11-20）结束后经 July 同意再打开；打开后输出口径改变，需重跑对比"
 }

@@ -27,6 +27,30 @@ def age(ts, now):
     return None if ts is None else (now - ts) / 86400
 
 
+AMM_V4_PROGRAM = '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8'
+AMM_V4_LP_SHARE = 0.22 / 0.25  # Raydium 官方文档：AMM v4 收 0.25%，LP 拿 0.22%
+
+
+def lp_share(p):
+    """返回 (LP 实收占总手续费的比例或 None, 说明)。11-18 核实：官方接口 day.volumeFee = 成交 × feeRate，是总手续费，页面 feeApr 也是总口径。
+    Concentrated：1 − (protocolFeeRate + fundFeeRate)/1e6（实测 12% + 4%，LP 84%）。
+    Standard · CPMM：总费率 = tradeFeeRate + creatorFeeRate；LP 只分交易费的 1 − 协议 − 基金，创建者费归建池人。
+    Standard · AMM v4：接口不给 config，按官方文档 0.22/0.25。"""
+    c = p.get('config') or {}
+    fee = f(p.get('feeRate')) or 0
+    prot, fund = f(c.get('protocolFeeRate')), f(c.get('fundFeeRate'))
+    if p.get('type') == 'Concentrated' and prot is not None and fund is not None:
+        return max(0.0, 1 - (prot + fund) / 1e6), 'LP 实收：总手续费 × (1 − 协议 %.0f%% − 基金 %.0f%%)' % (prot / 1e4, fund / 1e4)
+    if c.get('tradeFeeRate') is not None and prot is not None and fund is not None and fee:
+        trade = f(c.get('tradeFeeRate')) / 1e6
+        share = trade * (1 - (prot + fund) / 1e6) / fee
+        return max(0.0, min(1.0, share)), 'LP 实收：交易费 %.4f%% × (1 − 协议 − 基金) ÷ 总费率 %.4f%%（创建者费 %.4f%% 归建池人）' % (
+            trade * 100, fee * 100, (f(c.get('creatorFeeRate')) or 0) / 1e4)
+    if p.get('programId') == AMM_V4_PROGRAM:
+        return AMM_V4_LP_SHARE, 'LP 实收：AMM v4 按官方文档 0.22% ÷ 0.25%'
+    return None, 'LP 分成未知，按名义'
+
+
 def fetch_pages(min_tvl):
     page = 1
     while True:
@@ -62,6 +86,9 @@ def run(ctx):
                             [p['mintB'].get('symbol'), p['mintB'].get('address')]],
                  'notes': '官方接口 openTime 为 0 时无法判断建池时间',
                  'amounts': [f(p.get('mintAmountA')), f(p.get('mintAmountB'))]}  # 11-16：能定价一侧估值要用两侧数量
+            if cfg.get('lp_share_mode') == 'net':  # 1.1.0：开关打开后按池类型扣成 LP 实收（默认关，M4 期间与旧代码一致）
+                r['lp_share'], basis = lp_share(p)
+                r['notes'] += '；' + basis
             rows.append(rules.finish_solana(r, stocks, labels, R, spec, filter_unlisted=True))
     return rows, {'pages': page, 'n_raw': len(rows), 'label_counts': rules.label_counts(rows), 'archive': rules.meme_rows(rows)}
 

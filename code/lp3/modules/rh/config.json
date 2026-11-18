@@ -34,5 +34,11 @@
   "tail_status": "not_collected",
   "fee24x7_estimate": false
  },
- "legacy_coverage": null
+ "legacy_coverage": null,
+ "deduct_v3_protocol_fee": false,
+ "rpcs": [
+  "https://robinhood-rpc.publicnode.com",
+  "https://rpc.mainnet.chain.robinhood.com"
+ ],
+ "_note_1_1_0": "11-18 July 批（字段清单 §3）：开关默认关，M4（至 11-20）结束后经 July 同意再打开；打开后输出口径改变，需重跑对比"
 }
