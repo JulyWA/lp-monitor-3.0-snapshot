@@ -46,17 +46,7 @@ flowchart LR
 
 ## 怎么拿
 
-```mermaid
-flowchart LR
-  N["Solana 公共节点<br/>官方链上"] --> D1["D1 建币"]
-  N --> D2["D2 曲线成交"]
-  N --> D3["D3 毕业"]
-  N --> D4["D4 池子成交"]
-  N --> D5["D5 持有者"]
-  N --> D6["D6 回溯深度"]
-  G["GeckoTerminal<br/>第三方，仅对照"] -.-> D4
-  L["DefiLlama<br/>第三方，协议级"] --> D7["D7 份额"]
-```
+D1–D6 全部从 Solana 公共节点读，D7 用 DefiLlama；第三方只作对照或备选。
 
 | 来源 | 性质 | 用来拿什么 | key / 账号 | 11-18 实测 |
 | --- | --- | --- | --- | --- |
