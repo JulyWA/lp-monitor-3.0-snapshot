@@ -13,7 +13,7 @@
 
 门槛（`config.json` 的 `rules` 段，初值与 1 号机提交 fe9f8e2 相同）：TVL ≥ $50 万；部署 ≥ 7 天；24h 成交 ≤ 3 × 近 7 天日均（现为整池不过门槛，见 3.0 任务书风险表）。资产类别：任一侧在股票和商品名单里，归「股票和商品」。
 
-Robinhood 专有：两侧都是主流币（WETH、ETH、USDG、USDC、USDT、WBTC、cbBTC）才收；非股票、非主流币一律按 meme 存档；股票池归 2.0，不在这里。dex 以 aero-、aerodrome-、ramses- 开头的是动态费率池：不用池名费率，费率和 APY 留空，注「动态费率，未取」。
+Robinhood 专有：两侧都是主流币（WETH、ETH、USDG、USDC、USDT、WBTC、cbBTC）才收；非股票、非主流币一律按非研究对象 N1（非主流代币池）存档；股票池归 2.0，不在这里。dex 以 aero-、aerodrome-、ramses- 开头的是动态费率池：不用池名费率，费率和 APY 留空，注「动态费率，未取」。
 
 ## APY 口径
 

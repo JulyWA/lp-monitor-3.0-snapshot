@@ -20,7 +20,7 @@
 | chain | 链 | 100% | 100% | 100% | 100% | 100% | 100% | 共用必有 |
 | tokens | 两侧（Curve 可多侧）代币符号和地址 | 100% | 100% | 100% | 100% | 100% | 100% | 共用必有 |
 | asset_class | 代币 / 股票和商品 | 100% | 100% | 100% | 100% | 100% | 100% | 共用必有 |
-| meme_label | Solana 代币标签：anchor / ok / meme / unlisted / unknown / error | — | — | — | 100% | 100% | 100% | Solana 专有 |
+| meme_label | Solana 代币标签：anchor / ok / meme / unlisted / unknown / error（meme 即非研究对象 N2，字段名在分层重构 R1 中改） | — | — | — | 100% | 100% | 100% | Solana 专有 |
 
 **规模与成交**
 
